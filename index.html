@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f2f2f2;
-            text-align: center;
             margin: 0;
-            padding: 0;
+            overflow: hidden;
         }
 
         #weather-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            text-align: center;
         }
 
         .weather-card {
@@ -25,7 +26,6 @@
             padding: 20px;
             margin: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
             transition: transform 0.3s ease-in-out;
         }
 
@@ -34,13 +34,25 @@
             height: 100px;
             margin-bottom: 10px;
         }
+
+        #animated-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
     </style>
     <title>Animated Weather Forecast</title>
 </head>
 <body>
 
+<div id="animated-background"></div>
+
 <div id="weather-container"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.0/anime.min.js"></script>
 <script>
     // Replace 'YOUR_API_KEY' with your actual API key from OpenWeatherMap
     const apiKey = '5691c9220b01688e28ffc382c0edce02';
@@ -99,8 +111,18 @@
     // Initial city for demonstration
     const initialCity = 'London';
     updateWeather(initialCity);
+
+    // Animated Background
+    const animatedBackground = document.getElementById('animated-background');
+    anime({
+        targets: animatedBackground,
+        backgroundColor: ['#3498db', '#2980b9'],
+        duration: 2000,
+        loop: true,
+        direction: 'alternate',
+        easing: 'easeInOutQuad'
+    });
 </script>
 
 </body>
 </html>
-
