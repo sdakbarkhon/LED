@@ -1,1 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f2f2f2;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        #weather-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .weather-card {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #weather-icon {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+    </style>
+    <title>Animated Weather Forecast</title>
+</head>
+<body>
+
+<div id="weather-container"></div>
+
+<script>
+    // Replace 'YOUR_API_KEY' with your actual API key from OpenWeatherMap
+    const apiKey = '5691c9220b01688e28ffc382c0edce02';
+    const apiUrl = 'https://api.openweathermap.org/data/2.5/weather';
+
+    async function getWeather(city) {
+        try {
+            const response = await fetch(`${apiUrl}?q=${city}&appid=${apiKey}`);
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching weather data:', error);
+        }
+    }
+
+    function createWeatherCard(city, temperature, description, icon) {
+        const weatherContainer = document.getElementById('weather-container');
+        const weatherCard = document.createElement('div');
+        weatherCard.classList.add('weather-card');
+
+        const weatherIcon = document.createElement('img');
+        weatherIcon.src = `https://openweathermap.org/img/wn/${icon}.png`;
+        weatherIcon.alt = description;
+        weatherIcon.id = 'weather-icon';
+
+        const cityName = document.createElement('h2');
+        cityName.textContent = city;
+
+        const tempElement = document.createElement('p');
+        tempElement.textContent = `${Math.round(temperature)}°C`;
+
+        const descriptionElement = document.createElement('p');
+        descriptionElement.textContent = description;
+
+        weatherCard.appendChild(weatherIcon);
+        weatherCard.appendChild(cityName);
+        weatherCard.appendChild(tempElement);
+        weatherCard.appendChild(descriptionElement);
+
+        weatherContainer.appendChild(weatherCard);
+    }
+
+    async function updateWeather(city) {
+        const weatherData = await getWeather(city);
+
+        if (weatherData) {
+            const { main, weather, name } = weatherData;
+            const temperature = main.temp - 273.15; // Convert from Kelvin to Celsius
+            const description = weather[0].description;
+            const icon = weather[0].icon;
+
+            createWeatherCard(name, temperature, description, icon);
+        }
+    }
+
+    // Initial city for demonstration
+    const initialCity = 'London';
+    updateWeather(initialCity);
+</script>
+
+</body>
+</html>
 
