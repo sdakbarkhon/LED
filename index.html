@@ -3,60 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <title>Animated Weather Forecast</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
             margin: 0;
             overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+
+        canvas {
+            display: block;
         }
 
         #weather-container {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 2;
-            text-align: center;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            z-index: 1;
         }
 
         .weather-card {
-            background-color: #fff;
+            background: rgba(0, 0, 0, 0.5);
             border-radius: 8px;
-            padding: 20px;
-            margin: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease-in-out;
+            padding: 10px;
+            margin-bottom: 10px;
+            text-align: center;
         }
 
         #weather-icon {
-            width: 100px;
-            height: 100px;
-            margin-bottom: 10px;
-        }
-
-        #animated-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
+            width: 50px;
+            height: 50px;
         }
     </style>
-    <title>Animated Weather Forecast</title>
 </head>
 <body>
 
-<div id="animated-background"></div>
+<div id="weather-container">
+    <div id="weather-card" class="weather-card"></div>
+</div>
 
-<div id="weather-container"></div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.0/anime.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-    // Replace 'YOUR_API_KEY' with your actual API key from OpenWeatherMap
     const apiKey = '5691c9220b01688e28ffc382c0edce02';
     const apiUrl = 'https://api.openweathermap.org/data/2.5/weather';
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    const weatherContainer = document.getElementById('weather-container');
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    const geometry = new THREE.PlaneGeometry(2, 2);
+    const material = new THREE.MeshBasicMaterial({ color: 0x87CEEB }); // Default sky-blue color
+
+    const plane = new THREE.Mesh(geometry, material);
+    scene.add(plane);
+
+    camera.position.z = 5;
 
     async function getWeather(city) {
         try {
@@ -68,8 +73,30 @@
         }
     }
 
+    function updateBackground(weather) {
+        let color;
+
+        switch (weather) {
+            case 'Clear':
+                color = 0x87CEEB; // Sky-blue for clear weather
+                break;
+            case 'Clouds':
+                color = 0x778899; // LightSlateGray for cloudy weather
+                break;
+            case 'Rain':
+                color = 0x4682B4; // SteelBlue for rainy weather
+                break;
+            case 'Snow':
+                color = 0xFFFFFF; // White for snowy weather
+                break;
+            default:
+                color = 0x87CEEB; // Default to sky-blue
+        }
+
+        plane.material.color.setHex(color);
+    }
+
     function createWeatherCard(city, temperature, description, icon) {
-        const weatherContainer = document.getElementById('weather-container');
         const weatherCard = document.createElement('div');
         weatherCard.classList.add('weather-card');
 
@@ -78,7 +105,7 @@
         weatherIcon.alt = description;
         weatherIcon.id = 'weather-icon';
 
-        const cityName = document.createElement('h2');
+        const cityName = document.createElement('p');
         cityName.textContent = city;
 
         const tempElement = document.createElement('p');
@@ -92,6 +119,7 @@
         weatherCard.appendChild(tempElement);
         weatherCard.appendChild(descriptionElement);
 
+        weatherContainer.innerHTML = '';
         weatherContainer.appendChild(weatherCard);
     }
 
@@ -104,6 +132,7 @@
             const description = weather[0].description;
             const icon = weather[0].icon;
 
+            updateBackground(weather[0].main);
             createWeatherCard(name, temperature, description, icon);
         }
     }
@@ -112,16 +141,12 @@
     const initialCity = 'London';
     updateWeather(initialCity);
 
-    // Animated Background
-    const animatedBackground = document.getElementById('animated-background');
-    anime({
-        targets: animatedBackground,
-        backgroundColor: ['#3498db', '#2980b9'],
-        duration: 2000,
-        loop: true,
-        direction: 'alternate',
-        easing: 'easeInOutQuad'
-    });
+    function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+    }
+
+    animate();
 </script>
 
 </body>
